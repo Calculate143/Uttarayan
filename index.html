@@ -6,30 +6,41 @@
     <title>Vokkata! - Lohri Monitor</title>
     <style>
         /* CSS STYLES */
+        :root {
+            --bg-color: #0f0404;
+            --primary-color: #ff4500; /* Red/Orange */
+            --accent-color: #ffd700;  /* Gold */
+        }
+
         body {
-            background-color: #0f0404; /* Deep bonfire night dark */
-            color: #ffcc00; /* Fire gold */
+            background-color: var(--bg-color);
+            color: var(--accent-color);
             font-family: system-ui, -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
             text-align: center;
         }
 
-        .container {
-            position: relative;
-            z-index: 10;
-            padding: 20px;
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 120px; /* Space for the big footer */
         }
 
         h1 {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 10px #ff4500;
+            font-size: 3.5rem;
+            margin: 0;
+            text-shadow: 0 0 15px var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         p.subtitle {
@@ -40,7 +51,7 @@
 
         /* The pulsating circle visualizer */
         .visualizer-box {
-            height: 200px;
+            height: 180px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -50,69 +61,101 @@
         .mic-circle {
             width: 80px;
             height: 80px;
-            background: radial-gradient(circle, #ffcc00 0%, #ff4500 100%);
+            background: radial-gradient(circle, var(--accent-color) 0%, var(--primary-color) 100%);
             border-radius: 50%;
-            box-shadow: 0 0 30px #ff4500;
-            transition: transform 0.05s linear; /* Smooth scaling */
+            box-shadow: 0 0 40px var(--primary-color);
+            transition: transform 0.05s linear;
         }
 
         .warning {
             background-color: rgba(255, 0, 0, 0.2);
             border: 1px solid red;
             color: #ff9999;
-            padding: 10px;
+            padding: 10px 20px;
             border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            max-width: 90%;
         }
 
         #startBtn {
-            background-color: #ff4500;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 15px 40px;
+            padding: 15px 50px;
             font-size: 1.5rem;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 69, 0, 0.6);
-            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+            font-weight: 800;
             text-transform: uppercase;
+            transition: transform 0.2s;
         }
 
-        #startBtn:active {
-            transform: scale(0.95);
+        #startBtn:active { transform: scale(0.95); }
+        #startBtn.active { background-color: #333; box-shadow: none; border: 2px solid #555; }
+
+        /* FOOTER STYLES */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(20, 5, 5, 0.95);
+            border-top: 2px solid var(--primary-color);
+            padding: 20px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
+            z-index: 100;
         }
 
-        #startBtn.active {
-            background-color: #333;
-            box-shadow: none;
-            border: 2px solid #555;
+        .footer-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .footer-details {
+            font-size: 1rem;
+            color: #e0e0e0;
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🪁 VOKKATA! 🪁</h1>
-        <p class="subtitle">Live Mic Loopback</p>
+    <div class="main-content">
+        <h1>🪁 Vokkata! 🪁</h1>
+        <p class="subtitle">Real-time Audio Loopback</p>
 
         <div class="visualizer-box">
             <div id="micCircle" class="mic-circle"></div>
         </div>
 
         <div class="warning">
-            ⚠️ <strong>HEADPHONES REQUIRED</strong><br>
-            Using speakers will cause loud screeching!
+            ⚠️ <strong>HEADPHONES MANDATORY</strong><br>
+            To prevent loud screeching noise!
         </div>
 
-        <button id="startBtn">START MIC</button>
+        <button id="startBtn">Start Monitor</button>
     </div>
 
+    <footer>
+        <div class="footer-name">Nilarka Das</div>
+        <div class="footer-details">
+            M.Sc Applied Mathematics | Web Developer<br>
+            <span class="highlight">Tech Savvy & Creative</span>
+        </div>
+    </footer>
+
     <script>
-        // JAVASCRIPT LOGIC
         let audioContext;
         let mediaStream;
         let source;
@@ -126,33 +169,27 @@
             if (!isRunning) {
                 // START
                 try {
-                    // 1. Init Audio Context
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     
-                    // 2. Get Mic Access
-                    // echoCancellation: false ensures you hear the raw "scream" without the phone trying to filter it out
+                    // No echo cancellation for raw sound
                     mediaStream = await navigator.mediaDevices.getUserMedia({ 
                         audio: { echoCancellation: false, noiseSuppression: false, latency: 0 } 
                     });
 
-                    // 3. Connect Mic -> Speakers
                     source = audioContext.createMediaStreamSource(mediaStream);
                     analyser = audioContext.createAnalyser();
                     
-                    // Connect source to analyser (for visual) and destination (for hearing)
                     source.connect(analyser);
                     source.connect(audioContext.destination);
 
-                    // 4. Update UI
                     isRunning = true;
                     btn.textContent = "STOP";
                     btn.classList.add('active');
 
-                    // 5. Start Visualizer Loop
                     visualize();
 
                 } catch (err) {
-                    alert("Please allow Microphone access! " + err);
+                    alert("Microphone permission denied! " + err);
                 }
             } else {
                 // STOP
@@ -163,7 +200,7 @@
                     audioContext.close();
                 }
                 isRunning = false;
-                btn.textContent = "START MIC";
+                btn.textContent = "Start Monitor";
                 btn.classList.remove('active');
                 circle.style.transform = 'scale(1)';
             }
@@ -175,16 +212,13 @@
             const dataArray = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(dataArray);
 
-            // Calculate volume level
             let sum = 0;
             for (let i = 0; i < dataArray.length; i++) {
                 sum += dataArray[i];
             }
             let average = sum / dataArray.length;
 
-            // Scale the circle based on how loud you scream
-            // 20 is a dampening factor, adjust if it's too sensitive
-            let scale = 1 + (average / 20); 
+            let scale = 1 + (average / 25); 
             circle.style.transform = `scale(${scale})`;
 
             requestAnimationFrame(visualize);
