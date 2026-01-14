@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokkata! - Lohri Monitor</title>
+    <style>
+        /* CSS STYLES */
+        body {
+            background-color: #0f0404; /* Deep bonfire night dark */
+            color: #ffcc00; /* Fire gold */
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px #ff4500;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: #ffaa80;
+            margin-bottom: 2rem;
+        }
+
+        /* The pulsating circle visualizer */
+        .visualizer-box {
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .mic-circle {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #ffcc00 0%, #ff4500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 30px #ff4500;
+            transition: transform 0.05s linear; /* Smooth scaling */
+        }
+
+        .warning {
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 1px solid red;
+            color: #ff9999;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #startBtn {
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.6);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        #startBtn:active {
+            transform: scale(0.95);
+        }
+
+        #startBtn.active {
+            background-color: #333;
+            box-shadow: none;
+            border: 2px solid #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🪁 VOKKATA! 🪁</h1>
+        <p class="subtitle">Live Mic Loopback</p>
+
+        <div class="visualizer-box">
+            <div id="micCircle" class="mic-circle"></div>
+        </div>
+
+        <div class="warning">
+            ⚠️ <strong>HEADPHONES REQUIRED</strong><br>
+            Using speakers will cause loud screeching!
+        </div>
+
+        <button id="startBtn">START MIC</button>
+    </div>
+
+    <script>
+        // JAVASCRIPT LOGIC
+        let audioContext;
+        let mediaStream;
+        let source;
+        let analyser;
+        let isRunning = false;
+        
+        const btn = document.getElementById('startBtn');
+        const circle = document.getElementById('micCircle');
+
+        btn.addEventListener('click', async () => {
+            if (!isRunning) {
+                // START
+                try {
+                    // 1. Init Audio Context
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // 2. Get Mic Access
+                    // echoCancellation: false ensures you hear the raw "scream" without the phone trying to filter it out
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: { echoCancellation: false, noiseSuppression: false, latency: 0 } 
+                    });
+
+                    // 3. Connect Mic -> Speakers
+                    source = audioContext.createMediaStreamSource(mediaStream);
+                    analyser = audioContext.createAnalyser();
+                    
+                    // Connect source to analyser (for visual) and destination (for hearing)
+                    source.connect(analyser);
+                    source.connect(audioContext.destination);
+
+                    // 4. Update UI
+                    isRunning = true;
+                    btn.textContent = "STOP";
+                    btn.classList.add('active');
+
+                    // 5. Start Visualizer Loop
+                    visualize();
+
+                } catch (err) {
+                    alert("Please allow Microphone access! " + err);
+                }
+            } else {
+                // STOP
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                }
+                if (audioContext) {
+                    audioContext.close();
+                }
+                isRunning = false;
+                btn.textContent = "START MIC";
+                btn.classList.remove('active');
+                circle.style.transform = 'scale(1)';
+            }
+        });
+
+        function visualize() {
+            if (!isRunning) return;
+
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(dataArray);
+
+            // Calculate volume level
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            let average = sum / dataArray.length;
+
+            // Scale the circle based on how loud you scream
+            // 20 is a dampening factor, adjust if it's too sensitive
+            let scale = 1 + (average / 20); 
+            circle.style.transform = `scale(${scale})`;
+
+            requestAnimationFrame(visualize);
+        }
+    </script>
+</body>
+</html>
