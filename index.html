@@ -32,11 +32,12 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            padding-bottom: 120px; /* Space for the big footer */
+            /* Extra padding at bottom so button doesn't hit footer on small phones */
+            padding-bottom: 140px; 
         }
 
         h1 {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin: 0;
             text-shadow: 0 0 15px var(--primary-color);
             text-transform: uppercase;
@@ -51,7 +52,7 @@
 
         /* The pulsating circle visualizer */
         .visualizer-box {
-            height: 180px;
+            height: 150px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -59,8 +60,8 @@
         }
 
         .mic-circle {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: radial-gradient(circle, var(--accent-color) 0%, var(--primary-color) 100%);
             border-radius: 50%;
             box-shadow: 0 0 40px var(--primary-color);
@@ -71,25 +72,26 @@
             background-color: rgba(255, 0, 0, 0.2);
             border: 1px solid red;
             color: #ff9999;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 8px;
-            font-size: 1rem;
-            margin-bottom: 25px;
-            max-width: 90%;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            max-width: 85%;
         }
 
         #startBtn {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 15px 50px;
-            font-size: 1.5rem;
+            padding: 15px 40px;
+            font-size: 1.3rem;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
             font-weight: 800;
             text-transform: uppercase;
             transition: transform 0.2s;
+            z-index: 50; /* Ensure button is above visual elements */
         }
 
         #startBtn:active { transform: scale(0.95); }
@@ -101,57 +103,54 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: rgba(20, 5, 5, 0.95);
-            border-top: 2px solid var(--primary-color);
-            padding: 20px 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
+            background: rgba(15, 4, 4, 0.98); /* Nearly opaque background */
+            border-top: 1px solid #333;
+            padding: 15px 0;
             z-index: 100;
+            box-shadow: 0 -10px 30px rgba(0,0,0,1);
         }
 
         .footer-name {
-            font-size: 1.8rem;
-            font-weight: bold;
+            font-size: 2rem; /* NAME IS BIG */
+            font-weight: 900;
             color: var(--accent-color);
             margin: 0;
             letter-spacing: 1px;
+            text-transform: uppercase;
+            line-height: 1.1;
         }
 
         .footer-details {
-            font-size: 1rem;
-            color: #e0e0e0;
+            font-size: 0.75rem; /* OTHERS ARE SHRUNK */
+            color: #999;
             margin-top: 5px;
-            font-weight: 300;
-        }
-
-        .highlight {
-            color: var(--primary-color);
-            font-weight: bold;
+            font-weight: 400;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
 <body>
 
     <div class="main-content">
-        <h1>🪁 Vokkata! 🪁</h1>
-        <p class="subtitle">Real-time Audio Loopback</p>
+        <h1>🪁 VOKKATA! 🪁</h1>
+        <p class="subtitle">Live Audio Monitor</p>
 
         <div class="visualizer-box">
             <div id="micCircle" class="mic-circle"></div>
         </div>
 
         <div class="warning">
-            ⚠️ <strong>HEADPHONES MANDATORY</strong><br>
-            To prevent loud screeching noise!
+            ⚠️ <strong>USE HEADPHONES</strong><br>
+            To avoid feedback noise!
         </div>
 
         <button id="startBtn">Start Monitor</button>
     </div>
 
     <footer>
-        <div class="footer-name">Nilarka Das</div>
+        <div class="footer-name">NILARKA DAS</div>
         <div class="footer-details">
-            M.Sc Applied Mathematics | Web Developer<br>
-            <span class="highlight">Tech Savvy & Creative</span>
+            M.Sc Applied Math (2024) • Web Developer
         </div>
     </footer>
 
@@ -171,7 +170,6 @@
                 try {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     
-                    // No echo cancellation for raw sound
                     mediaStream = await navigator.mediaDevices.getUserMedia({ 
                         audio: { echoCancellation: false, noiseSuppression: false, latency: 0 } 
                     });
