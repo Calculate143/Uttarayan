@@ -6,50 +6,41 @@
     <title>Vokkata! - Lohri Monitor</title>
     <style>
         /* CSS STYLES */
-        :root {
-            --bg-color: #0f0404;
-            --primary-color: #ff4500; /* Red/Orange */
-            --accent-color: #ffd700;  /* Gold */
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--accent-color);
+            background-color: #0f0404; /* Deep bonfire night dark */
+            color: #ffcc00; /* Fire gold */
             font-family: system-ui, -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
             text-align: center;
         }
 
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding-bottom: 140px; 
+        .container {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
         }
 
         h1 {
             font-size: 3rem;
-            margin: 0;
-            text-shadow: 0 0 15px var(--primary-color);
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px #ff4500;
         }
 
         p.subtitle {
             font-size: 1.2rem;
             color: #ffaa80;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
+        /* The pulsating circle visualizer */
         .visualizer-box {
-            height: 150px;
+            height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -57,198 +48,111 @@
         }
 
         .mic-circle {
-            width: 70px;
-            height: 70px;
-            background: radial-gradient(circle, var(--accent-color) 0%, var(--primary-color) 100%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #ffcc00 0%, #ff4500 100%);
             border-radius: 50%;
-            box-shadow: 0 0 40px var(--primary-color);
-            transition: transform 0.05s linear;
-        }
-
-        .controls {
-            width: 80%;
-            max-width: 300px;
-            background: rgba(255, 69, 0, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid #ff4500;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #ffaa80;
-        }
-
-        /* Custom Slider */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: var(--accent-color);
-            cursor: pointer;
-            margin-top: -8px;
-            box-shadow: 0 0 10px var(--accent-color);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #ff4500;
-            border-radius: 2px;
+            box-shadow: 0 0 30px #ff4500;
+            transition: transform 0.05s linear; /* Smooth scaling */
         }
 
         .warning {
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 1px solid red;
             color: #ff9999;
-            font-size: 0.8rem;
-            margin-bottom: 15px;
-            opacity: 0.8;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         #startBtn {
-            background-color: var(--primary-color);
+            background-color: #ff4500;
             color: white;
             border: none;
             padding: 15px 40px;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
-            font-weight: 800;
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.6);
+            font-weight: bold;
             text-transform: uppercase;
-            transition: transform 0.2s;
-            z-index: 50;
         }
 
-        #startBtn:active { transform: scale(0.95); }
-        #startBtn.active { background-color: #333; box-shadow: none; border: 2px solid #555; }
-
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(15, 4, 4, 0.98);
-            border-top: 1px solid #333;
-            padding: 15px 0;
-            z-index: 100;
-            box-shadow: 0 -10px 30px rgba(0,0,0,1);
+        #startBtn:active {
+            transform: scale(0.95);
         }
 
-        .footer-name {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--accent-color);
-            margin: 0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        .footer-details {
-            font-size: 0.75rem;
-            color: #999;
-            margin-top: 5px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
+        #startBtn.active {
+            background-color: #333;
+            box-shadow: none;
+            border: 2px solid #555;
         }
     </style>
 </head>
 <body>
 
-    <div class="main-content">
+    <div class="container">
         <h1>🪁 VOKKATA! 🪁</h1>
-        <p class="subtitle">Live Audio Booster</p>
+        <p class="subtitle">Live Mic Loopback</p>
 
         <div class="visualizer-box">
             <div id="micCircle" class="mic-circle"></div>
         </div>
 
-        <div class="controls">
-            <label for="volumeSlider">Volume Boost: <span id="volValue">100%</span></label>
-            <input type="range" id="volumeSlider" min="0" max="3" step="0.1" value="1">
-        </div>
-
         <div class="warning">
-            ⚠️ Headphones Mandatory
+            ⚠️ <strong>HEADPHONES REQUIRED</strong><br>
+            Using speakers will cause loud screeching!
         </div>
 
-        <button id="startBtn">Start Monitor</button>
+        <button id="startBtn">START MIC</button>
     </div>
 
-    <footer>
-        <div class="footer-name">NILARKA DAS</div>
-        <div class="footer-details">
-            Telegram - @nilarkadas
-        </div>
-    </footer>
-
     <script>
+        // JAVASCRIPT LOGIC
         let audioContext;
         let mediaStream;
         let source;
-        let gainNode; // The Volume Booster
         let analyser;
         let isRunning = false;
         
         const btn = document.getElementById('startBtn');
         const circle = document.getElementById('micCircle');
-        const slider = document.getElementById('volumeSlider');
-        const volValue = document.getElementById('volValue');
-
-        // Update Volume Display
-        slider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            volValue.innerText = Math.round(val * 100) + "%";
-            if(gainNode) {
-                gainNode.gain.value = val;
-            }
-        });
 
         btn.addEventListener('click', async () => {
             if (!isRunning) {
                 // START
                 try {
+                    // 1. Init Audio Context
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     
+                    // 2. Get Mic Access
+                    // echoCancellation: false ensures you hear the raw "scream" without the phone trying to filter it out
                     mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: { 
-                            echoCancellation: false, 
-                            noiseSuppression: false, 
-                            autoGainControl: false, // Try to stop phone from auto-lowering vol
-                            latency: 0 
-                        } 
+                        audio: { echoCancellation: false, noiseSuppression: false, latency: 0 } 
                     });
 
-                    // Create Nodes
+                    // 3. Connect Mic -> Speakers
                     source = audioContext.createMediaStreamSource(mediaStream);
-                    gainNode = audioContext.createGain(); // Create Gain Node
                     analyser = audioContext.createAnalyser();
                     
-                    // Set Initial Volume from Slider
-                    gainNode.gain.value = parseFloat(slider.value);
+                    // Connect source to analyser (for visual) and destination (for hearing)
+                    source.connect(analyser);
+                    source.connect(audioContext.destination);
 
-                    // Connect: Source -> Gain -> Analyser -> Speakers
-                    source.connect(gainNode);
-                    gainNode.connect(analyser);
-                    gainNode.connect(audioContext.destination);
-
+                    // 4. Update UI
                     isRunning = true;
                     btn.textContent = "STOP";
                     btn.classList.add('active');
 
+                    // 5. Start Visualizer Loop
                     visualize();
 
                 } catch (err) {
-                    alert("Microphone permission denied! " + err);
+                    alert("Please allow Microphone access! " + err);
                 }
             } else {
                 // STOP
@@ -259,7 +163,7 @@
                     audioContext.close();
                 }
                 isRunning = false;
-                btn.textContent = "Start Monitor";
+                btn.textContent = "START MIC";
                 btn.classList.remove('active');
                 circle.style.transform = 'scale(1)';
             }
@@ -271,13 +175,16 @@
             const dataArray = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(dataArray);
 
+            // Calculate volume level
             let sum = 0;
             for (let i = 0; i < dataArray.length; i++) {
                 sum += dataArray[i];
             }
             let average = sum / dataArray.length;
 
-            let scale = 1 + (average / 25); 
+            // Scale the circle based on how loud you scream
+            // 20 is a dampening factor, adjust if it's too sensitive
+            let scale = 1 + (average / 20); 
             circle.style.transform = `scale(${scale})`;
 
             requestAnimationFrame(visualize);
